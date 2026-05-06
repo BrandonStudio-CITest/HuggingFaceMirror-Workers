@@ -1,5 +1,4 @@
 name: Production Test
-description: Run HuggingFace client in practice.
 on:
   schedule:
     - cron: '0 0 * * 0' # Weekly on Sunday at 00:00
@@ -8,9 +7,17 @@ on:
     secrets:
       HF_ENDPOINT:
         required: true
+  workflow_run:
+    workflows:
+      - Deploy
+    branches:
+      - main
+    types:
+      - completed
 
 jobs:
   production-test:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Block HuggingFace domains with dnsmasq
